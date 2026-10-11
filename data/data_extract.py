@@ -1,7 +1,6 @@
 import pandas as pd
 
 def data_info(df):
-    
     info = {
         # Dataset
         "shape": df.shape,
