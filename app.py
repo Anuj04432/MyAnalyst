@@ -1,4 +1,5 @@
 import streamlit as st
+from components.auth_ui import render_auth_gate
 from components.sidebar import render_sidebar
 from ui.Data_Analysis import analysis_tab
 from ui.Data_Visualization import visualization_tab
@@ -10,16 +11,19 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("🤖 Agentic Data Analyst")
-
-# Initialize session state for persistent dataset and message history
+# Initialize session state for persistent dataset, auth, and message history
 init_session_state()
+
+# Enforce authentication gate - halts rendering until user logs in
+current_user = render_auth_gate()
+
+st.title("🤖 Agentic Data Analyst")
 
 # Shared modular sidebar for multi-source ingestion & dataset badge
 df, filename = render_sidebar()
 
 if df is not None:
-    st.caption(f"Active Dataset: **{filename}** | {df.shape[0]:,} rows × {df.shape[1]} columns")
+    st.caption(f"User: **{current_user}** | Active Dataset: **{filename}** | {df.shape[0]:,} rows × {df.shape[1]} columns")
     tab_eda, tab_viz, tab_chat = st.tabs([
         "📊 Exploratory Data Analysis",
         "📈 Data Visualization",
