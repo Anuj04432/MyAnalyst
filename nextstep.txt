@@ -177,39 +177,42 @@ PART 3: PHASE 5 - DATA VISUALIZATION VIEW & ENGINE [COMPLETED TODAY]
    - 149 total automated tests passing across the entire project in ~11s.
 
 ================================================================================
-ARCHITECTURE PLAN: USER AUTHENTICATION & SANDBOXED DATASET ISOLATION
+PART 4: USER AUTHENTICATION & SANDBOXED DATASET ISOLATION (TRACK A) [COMPLETED]
 ================================================================================
-Goal: Enforce multi-user privacy, prevent data leaks between concurrent users,
-and persist recent datasets per user across browser reopens (Local folder isolation first, cloud-ready).
+Goal: Enforced multi-user privacy, prevented data leaks between concurrent users,
+and persisted recent datasets per user across browser reopens (Local folder isolation first, cloud-ready).
 
-1. 'utils/auth.py' (Authentication & Credential Engine):
+1. 'utils/auth.py' (Authentication & Credential Engine) [COMPLETED]:
    - Secure credential storage in 'data/users/auth.json' (auto-ignored by Git).
-   - Cryptographic password hashing (salted pbkdf2_hmac / sha256).
+   - Cryptographic password hashing (salted pbkdf2_hmac / sha256 with 100,000 rounds).
    - Core API:
-     * signup_user(username, password): Validate, hash password, initialize user folder.
-     * login_user(username, password): Verify credentials, set session state.
-     * logout_user(): Purge memory, reset active datasets, redirect to login gate.
-     * get_current_user(): Retrieve active authenticated username from session.
+     * signup_user(username, password): Validates, hashes password, initializes user folder.
+     * login_user(username, password): Verifies credentials, sets session state.
+     * logout_user(): Purges memory, resets active datasets, redirects to login gate.
+     * get_current_user(): Retrieves active authenticated username from session.
+     * is_user_authenticated(): Boolean authentication status check.
+   - 9 unit tests in 'tests/test_auth.py' passing.
 
-2. 'components/auth_ui.py' (Login & Sign-Up Gate UI):
+2. 'components/auth_ui.py' (Login & Sign-Up Gate UI) [COMPLETED]:
    - Modern authentication gate with '🔑 Sign In' and '📝 Create Account' tabs.
    - Blocks dashboard rendering via st.stop() until authentication succeeds.
    - Sidebar user profile badge: '👤 Logged in as: <username>' with '🚪 Log Out' button.
+   - 5 unit tests in 'tests/test_auth_ui.py' passing.
 
-3. 'utils/history.py' (Per-User Sandboxed Storage):
-   - Migrate global 'data/uploaded/' to sandboxed 'data/users/<username>/uploads/'.
-   - save_history(file, username): Restrict file writes strictly to user's folder.
+3. 'utils/history.py' (Per-User Sandboxed Storage) [COMPLETED]:
+   - Sandboxed user uploads under 'data/users/<username>/uploads/'.
+   - save_history(file, username): Restricts file writes strictly to user's folder.
    - get_history(username): Returns user's private uploads + public 'data/sample/'.
      Cross-user data leakage strictly prohibited.
    - get_file_path(filename, username): Validates ownership before file access.
+   - Directory traversal protection in sanitize_filename().
+   - 4 unit tests in 'tests/test_history_sandbox.py' passing.
 
-4. Session State & Git Protection:
+4. Session State & Git Protection [COMPLETED]:
    - Complete in-memory purge upon logout to prevent state inheritance between users.
-   - Add 'data/users/*' (except .gitkeep) to '.gitignore' to protect credentials and private uploads.
-
-5. Future Cloud Deployment Roadmap (Streamlit Cloud):
-   - Swap local 'data/users/<username>/' calls with cloud storage (Supabase Storage / AWS S3)
-     using the identical user-keyed folder schema.
+   - Added 'data/users/*' (preserving .gitkeep) to '.gitignore' to protect credentials and private uploads.
+   - Wired seamlessly into 'app.py' and 'components/sidebar.py'.
+   - 167 total automated tests passing across the entire project in ~7.7s.
 
 ================================================================================
 ACTION PLAN FOR NEXT STEP: PHASE 6 (AUTONOMOUS AI DATA ANALYST TAB & AGENT PIPELINE)
