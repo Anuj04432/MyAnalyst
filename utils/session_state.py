@@ -13,6 +13,12 @@ def init_session_state() -> None:
     if "messages" not in st.session_state:
         st.session_state["messages"] = []
 
+    if "authenticated_user" not in st.session_state:
+        st.session_state["authenticated_user"] = None
+
+    if "is_authenticated" not in st.session_state:
+        st.session_state["is_authenticated"] = False
+
 
 def set_dataset(df: pd.DataFrame, filename: str) -> None:
     """Update session state with a newly selected or uploaded dataset."""
