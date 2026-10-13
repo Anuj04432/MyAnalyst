@@ -50,6 +50,10 @@ from components.chat_interface import (
     render_chat_empty_state,
     render_chat_interface,
 )
+from components.auth_ui import (
+    render_auth_gate,
+    render_user_profile_badge,
+)
 
 __all__ = [
     "extract_summary_metrics",
@@ -86,6 +90,8 @@ __all__ = [
     "render_chat_history",
     "render_chat_empty_state",
     "render_chat_interface",
+    "render_auth_gate",
+    "render_user_profile_badge",
 ]
 
 
