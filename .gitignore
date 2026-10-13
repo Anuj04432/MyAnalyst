@@ -222,3 +222,7 @@ history
 
 structure
 saved_history
+
+# User sandboxed data & credentials
+data/users/*
+!data/users/.gitkeep
