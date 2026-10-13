@@ -202,7 +202,7 @@ and persisted recent datasets per user across browser reopens (Local folder isol
 3. 'utils/history.py' (Per-User Sandboxed Storage) [COMPLETED]:
    - Sandboxed user uploads under 'data/users/<username>/uploads/'.
    - save_history(file, username): Restricts file writes strictly to user's folder.
-   - get_history(username): Returns user's private uploads + public 'data/sample/'.
+   - get_history(username): Returns strictly user's private uploads only (public samples isolated in Sample Datasets).
      Cross-user data leakage strictly prohibited.
    - get_file_path(filename, username): Validates ownership before file access.
    - Directory traversal protection in sanitize_filename().

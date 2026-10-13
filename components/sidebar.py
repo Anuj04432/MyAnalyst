@@ -17,6 +17,7 @@ from utils.helpers import format_bytes
 from utils.history import (
     get_file_path,
     get_history,
+    get_user_uploads,
     get_sample_datasets,
     get_sample_file_path,
     save_history,
@@ -353,39 +354,43 @@ def render_data_source_picker(
     # 3. Recent History Mode
     # --------------------------------------------------------------------------
     elif source_mode == "🕒 Recent Files":
-        history = get_history(username=current_user) if current_user else get_history()
-        placeholder = "-- Select from History --"
-        options = [placeholder] + history
+        history = get_user_uploads(username=current_user) if current_user else get_user_uploads()
 
-        default_idx = 0
-        if current_filename and current_filename in history:
-            default_idx = options.index(current_filename)
+        if not history:
+            st.info("ℹ️ No uploaded datasets found in your account yet. Choose **Upload File** to add your datasets.")
+        else:
+            placeholder = "-- Select from Recent Uploads --"
+            options = [placeholder] + history
 
-        selected_recent = st.selectbox(
-            "Recent Files:",
-            options=options,
-            index=default_idx,
-            key=f"{key_prefix}_recent_select",
-            help="Previously uploaded and demo files",
-        )
+            default_idx = 0
+            if current_filename and current_filename in history:
+                default_idx = options.index(current_filename)
 
-        if selected_recent != placeholder and selected_recent != current_filename:
-            with st.spinner(f"Loading '{selected_recent}'..."):
-                try:
-                    file_path = (
-                        get_file_path(selected_recent, username=current_user)
-                        if current_user
-                        else get_file_path(selected_recent)
-                    )
-                    df, name, err = load_dataset_file(file_path, selected_recent)
-                    if err:
-                        st.error(f"❌ Failed to load file: {err}")
-                    else:
-                        set_dataset(df, name)
-                        st.toast(f"✅ Loaded {name}")
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"❌ Error loading recent file '{selected_recent}': {e}")
+            selected_recent = st.selectbox(
+                "Recent Uploads:",
+                options=options,
+                index=default_idx,
+                key=f"{key_prefix}_recent_select",
+                help="Datasets previously uploaded to your account",
+            )
+
+            if selected_recent != placeholder and selected_recent != current_filename:
+                with st.spinner(f"Loading '{selected_recent}'..."):
+                    try:
+                        file_path = (
+                            get_file_path(selected_recent, username=current_user)
+                            if current_user
+                            else get_file_path(selected_recent)
+                        )
+                        df, name, err = load_dataset_file(file_path, selected_recent)
+                        if err:
+                            st.error(f"❌ Failed to load file: {err}")
+                        else:
+                            set_dataset(df, name)
+                            st.toast(f"✅ Loaded {name}")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Error loading recent file '{selected_recent}': {e}")
 
     return get_dataset()
 
