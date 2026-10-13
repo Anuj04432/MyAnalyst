@@ -11,6 +11,7 @@ import html
 import pandas as pd
 import streamlit as st
 
+from utils.auth import get_current_user
 from utils.file_handler import dataset_format
 from utils.helpers import format_bytes
 from utils.history import (
@@ -27,6 +28,7 @@ from utils.session_state import (
     init_session_state,
     set_dataset,
 )
+from components.auth_ui import render_user_profile_badge
 
 
 def get_supported_file_extensions() -> List[str]:
@@ -266,6 +268,7 @@ def render_data_source_picker(
     """
     init_session_state()
     current_df, current_filename = get_dataset()
+    current_user = get_current_user()
 
     source_mode = st.radio(
         "Select Ingestion Method:",
@@ -296,7 +299,11 @@ def render_data_source_picker(
             if not already_loaded:
                 with st.spinner(f"Loading '{uploaded_file.name}'..."):
                     try:
-                        save_history(uploaded_file)
+                        if current_user:
+                            save_history(uploaded_file, username=current_user)
+                        else:
+                            save_history(uploaded_file)
+
                         df, name, err = load_dataset_file(uploaded_file, uploaded_file.name)
                         if err:
                             st.error(f"❌ Failed to parse '{uploaded_file.name}': {err}")
@@ -346,7 +353,7 @@ def render_data_source_picker(
     # 3. Recent History Mode
     # --------------------------------------------------------------------------
     elif source_mode == "🕒 Recent Files":
-        history = get_history()
+        history = get_history(username=current_user) if current_user else get_history()
         placeholder = "-- Select from History --"
         options = [placeholder] + history
 
@@ -365,7 +372,11 @@ def render_data_source_picker(
         if selected_recent != placeholder and selected_recent != current_filename:
             with st.spinner(f"Loading '{selected_recent}'..."):
                 try:
-                    file_path = get_file_path(selected_recent)
+                    file_path = (
+                        get_file_path(selected_recent, username=current_user)
+                        if current_user
+                        else get_file_path(selected_recent)
+                    )
                     df, name, err = load_dataset_file(file_path, selected_recent)
                     if err:
                         st.error(f"❌ Failed to load file: {err}")
@@ -377,6 +388,7 @@ def render_data_source_picker(
                     st.error(f"❌ Error loading recent file '{selected_recent}': {e}")
 
     return get_dataset()
+
 
 
 def render_sidebar(
@@ -397,6 +409,7 @@ def render_sidebar(
     init_session_state()
 
     with st.sidebar:
+        render_user_profile_badge(key_prefix=f"{key_prefix}_profile")
         st.header(title)
         render_active_dataset_card(key_prefix=key_prefix)
         st.divider()
