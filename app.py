@@ -6,7 +6,7 @@ from ui.Data_Visualization import visualization_tab
 from utils.session_state import get_dataset, init_session_state
 
 st.set_page_config(
-    page_title="Agentic Data Analyst",
+    page_title="My Analyst",
     page_icon="🤖",
     layout="wide",
 )
@@ -17,7 +17,7 @@ init_session_state()
 # Enforce authentication gate - halts rendering until user logs in
 current_user = render_auth_gate()
 
-st.title("🤖 Agentic Data Analyst")
+st.title("🤖 My Analyst")
 
 # Shared modular sidebar for multi-source ingestion & dataset badge
 df, filename = render_sidebar()
@@ -26,7 +26,7 @@ if df is not None:
     st.caption(f"User: **{current_user}** | Active Dataset: **{filename}** | {df.shape[0]:,} rows × {df.shape[1]} columns")
     tab_eda, tab_viz, tab_chat = st.tabs([
         "📊 Exploratory Data Analysis",
-        "📈 Data Visualization",
+        "📈 Visualization of your Data",
         "🤖 Ask Your Data",
     ])
 
